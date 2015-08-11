@@ -6,32 +6,29 @@
 
 #include "graph_map/graph.h"
 
-struct graph_map::Edge
+namespace graph_map
+{
+
+struct Edge
 {
     geo::Transform2 pose;
     const Node* n1;
     const Node* n2;
 };
 
-struct graph_map::Node
+struct Node
 {
     std::string id;
     std::string type;
     std::vector<Edge*> edges;
 };
 
-class graph_map::Graph
+void Graph::addNode(Node* node)
 {
-private:
-    std::vector<Node> nodes_;
-    std::vector<Edge> edges_;
+    nodes_.push_back(*node);
+}
 
-    Node* addNode(Node node)
-    {
-        nodes_.push_back(node);
-        return &node;
-    }
-};
+}
 
 int main(int argc, char** argv)
 {
