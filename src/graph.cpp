@@ -11,7 +11,9 @@ namespace graph_map
 
 struct Edge
 {
-    geo::Transform2 pose;
+    // TODO: make incompleteness of pose relationship possible
+    geo::Transform2 pose; // Pose transform from node 1 to node 2
+
     const Node* n1;
     const Node* n2;
 };
@@ -23,19 +25,14 @@ struct Node
     std::vector<Edge*> edges;
 };
 
-void Graph::addNode(Node* node)
+Node* Graph::addNode(Node &node)
 {
-    nodes_.push_back(*node);
+    std::cout << "Node being added: " << node.id << std::endl;
+    nodes_.push_back(node);
+    std::cout << "Node being deleted: " << node.id << std::endl;
+    delete node;
+    std::cout << "Node at the end of the nodes_ vector: " << nodes_.back().id << std::endl;
+    return &nodes_.back();
 }
 
-}
-
-int main(int argc, char** argv)
-{
-    int i;
-    while( i <= 10 )
-    {
-        i++;
-        std::cout << i << std::endl;
-    }
 }

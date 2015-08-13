@@ -1,6 +1,8 @@
 #ifndef GRAPH_H_
 #define GRAPH_H_
 
+#include <vector>
+
 namespace graph_map
 {
 
@@ -11,10 +13,14 @@ struct Node;
 class Graph
 {
 private:
+    Graph(){}
+    ~Graph(){}
+
     std::vector<Node> nodes_;
     std::vector<Edge> edges_;
 
-    void addNode(Node *node);
+public:
+    Node* addNode(Node &node);
 };
 
 }

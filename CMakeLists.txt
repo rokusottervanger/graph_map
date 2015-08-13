@@ -97,12 +97,12 @@ include_directories(include
 file(GLOB_RECURSE HEADER_FILES include/*.h)
 
 ## Declare a cpp library
-# add_library(graph_map
-#   src/${PROJECT_NAME}/graph_map.cpp
-# )
+add_library(graph
+  src/graph.cpp ${HEADER_FILES}
+)
 
 ## Declare a cpp executable
-add_executable(graph src/graph.cpp ${HEADER_FILES})
+# add_executable(graph src/graph.cpp ${HEADER_FILES})
 
 ## Add cmake target dependencies of the executable/library
 ## as an example, message headers may need to be generated before nodes
@@ -112,6 +112,12 @@ add_executable(graph src/graph.cpp ${HEADER_FILES})
 target_link_libraries(
   graph ${catkin_LIBRARIES}
 )
+
+## Declare a cpp executable
+add_executable(test_graph test/test_graph.cpp)
+#target_link_libraries(
+#  graph ${catkin_LIBRARIES}
+#)
 
 #############
 ## Testing ##
