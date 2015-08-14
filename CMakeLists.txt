@@ -88,36 +88,24 @@ catkin_package(
 ## Build ##
 ###########
 
-## Specify additional locations of header files
-## Your package locations should be listed before other locations
-include_directories(include
+include_directories(
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 file(GLOB_RECURSE HEADER_FILES include/*.h)
 
-## Declare a cpp library
-add_library(graph
-  src/graph.cpp ${HEADER_FILES}
-)
 
-## Declare a cpp executable
-# add_executable(graph src/graph.cpp ${HEADER_FILES})
-
-## Add cmake target dependencies of the executable/library
-## as an example, message headers may need to be generated before nodes
-# add_dependencies(graph_map_node graph_map_generate_messages_cpp)
-
-## Specify libraries to link a library or executable target against
-target_link_libraries(
-  graph ${catkin_LIBRARIES}
-)
-
-## Declare a cpp executable
-add_executable(test_graph test/test_graph.cpp)
-#target_link_libraries(
-#  graph ${catkin_LIBRARIES}
+#add_library(graph src/graph.cpp ${HEADER_FILES})
+#target_link_libraries(graph
+#  ${catkin_LIBRARIES}
 #)
+
+## Declare a cpp executable
+add_executable(test_graph test/test_graph.cpp src/graph.cpp)
+target_link_libraries(test_graph
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Testing ##
