@@ -3,12 +3,22 @@
 
 #include <vector>
 #include <list>
+#include <queue>
 #include <geolib/datatypes.h>
 
 namespace graph_map
 {
 
-struct Node;
+//struct IncompleteTransform
+//{
+//    // Definition of incomplete transform
+//}
+
+// -----------------------------------------------------------------------------------------------
+
+struct Node; // Forward declare Node for use in Edge
+
+// -----------------------------------------------------------------------------------------------
 
 struct Edge
 {
@@ -22,10 +32,13 @@ public:
 protected:
     // TODO: make incompleteness of pose relationship possible
     geo::Transform2 pose; // Pose transform from node 1 to node 2
+    double w; // Edge weight
 
     const Node* n1_;
     const Node* n2_;
 };
+
+// -----------------------------------------------------------------------------------------------
 
 struct Node
 {
@@ -40,6 +53,8 @@ public:
     std::string id;
 };
 
+// -----------------------------------------------------------------------------------------------
+
 class Graph
 {
     friend std::ostream& operator<< (std::ostream& os, const Graph& g);
@@ -47,10 +62,12 @@ public:
     Graph(){}
     ~Graph(){}
 
-    Node* addNode(Node &node);
+    Node* addNode(const Node &node);
     Edge* addEdge(Node* n1, Node* n2);
 
-//private:
+    std::queue<Node*> Dijkstra(const Node &n1, const Node &n2);
+
+private:
     std::list<Node> nodes_;
     std::list<Edge> edges_;
 
