@@ -102,7 +102,7 @@ file(GLOB_RECURSE HEADER_FILES include/*.h)
 #)
 
 ## Declare a cpp executable
-add_executable(test_graph test/test_graph.cpp src/graph.cpp)
+add_executable(test_graph test/test_graph.cpp src/graph.cpp ${HEADER_FILES})
 target_link_libraries(test_graph
   ${catkin_LIBRARIES}
 )
