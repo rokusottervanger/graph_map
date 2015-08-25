@@ -45,33 +45,123 @@ Edge* Graph::addEdge(Node* n1, Node* n2)
 
 // Todo: Maybe calculate shortest path tree when adding/updating edges/nodes with robot as root.
 
-std::queue<Node*> Graph::Dijkstra(const Node &n1, const Node &n2)
-{
-    std::queue<double> d;
+//struct Neighbour{
+//    Node* target;
+//    double weight;
+//    Neighbour(Node* target_arg, double weight_arg):
+//        target(target_arg), weight(weight_arg) {}
+//    operator< (Neighbour n) { weight < n.weight; }
+//};
 
-    // Create vertex set Q
-    std::queue<Node*> Q;
 
-    for ( std::list<Node>::iterator it = nodes_.begin(); it != nodes_.end(); it++ )
-    {
-//        double a = std::numeric_limits<double>::infinity();
-        Q.push(&(*it)); // Push pointer to node into queue
-    }
 
-    while ( !Q.empty() ) // Only visit nodes once
-    {
-        Node* u = Q.front(); // Vertex in Q with the minimum distance to the source node. Todo: sort queue
-        Q.pop();
+//std::queue<Node*> Graph::Dijkstra(const Node &n1, const Node &n2)
+//{
+//    std::queue<double> d;
 
-        // Loop through current node's neighbours
-        for ( std::vector<Edge*>::iterator e_it = u->edges.begin(); e_it != u->edges.end(); e_it++ )
-        {
-            if( (*e_it)->n1_->id == u->id )
-                const Node* v = (*e_it)->n2_;
-            else if ( (*e_it)->n2_->id == u->id )
-                const Node* v = (*e_it)->n1_;
-            else
-                std::cout << "Check yourself! This should never happen." << std::endl;
+//    // Create vertex set Q
+//    std::queue<Node*> Q;
+
+//    for ( std::list<Node>::iterator it = nodes_.begin(); it != nodes_.end(); it++ )
+//    {
+////        double a = std::numeric_limits<double>::infinity();
+//        Q.push(&(*it)); // Push pointer to node into queue
+//    }
+
+//    while ( !Q.empty() ) // Only visit nodes once
+//    {
+//        Node* u = Q.front(); // Vertex in Q with the minimum distance to the source node. Todo: sort queue
+//        Q.pop();
+
+//        // Loop through current node's neighbours
+//        for ( std::vector<Edge*>::iterator e_it = u->edges.begin(); e_it != u->edges.end(); e_it++ )
+//        {
+//            if( (*e_it)->n1_->id == u->id )
+//                const Node* v = (*e_it)->n2_;
+//            else if ( (*e_it)->n2_->id == u->id )
+//                const Node* v = (*e_it)->n1_;
+//            else
+//                std::cout << "Check yourself! This should never happen." << std::endl;
+//        }
+//    }
+//}
+
+typedef std::pair< int, Node* > Neighbor;
+
+/*
+Set MAX according to the number of nodes in the graph. Remember,
+nodes are numbered from 1 to N. Set INF according to what is the
+maximum possible shortest path length going to be in the graph.
+This value should match with the default values for d[] array.
+*/
+const int MAX = 1024;
+const int INF = 0x3f3f3f3f;
+
+const double inf = std::numeric_limits<double>::infinity();
+
+/*
+pair object for graph is assumed to be (node, weight). d[] array
+holds the shortest path from the source. It contains INF if not
+reachable from the source.
+*/
+std::vector< Neighbor > G;
+std::vector< Node* > d;
+
+/*
+The dijkstra routine. You can send a target node too along with
+the source node.
+*/
+void dijkstra(int source, int target) {
+    int u, v, i, c, w;
+
+    priority_queue< Neighbor, vector< Neighbor >, greater< Neighbor > > Q;
+
+    /*
+    Reset the distance array and set INF as initial value. The
+    source node will have weight 0. We push (0, source) in the
+    priority queue as well that denotes source node has 0 weight.
+    */
+    memset(d, 0x3f, sizeof d);
+    Q.push(pii(0, source));
+    d[source] = 0;
+
+    /*
+    As long as queue is not empty, check each adjacent node of u
+    */
+    while(!Q.empty()) {
+        u = Q.top().second; // node
+        c = Q.top().first; // node cost so far
+        Q.pop(); // remove the top item.
+
+        /*
+        We have discarded the visit array as we do not need it.
+        If d[u] has already a better value than the currently
+        popped node from queue, discard the operation on this node.
+        */
+        if(d[u] < c) continue;
+
+        /*
+        In case you have a target node, check if u == target node.
+        If yes you can early return d[u] at this point.
+        */
+
+        /*
+        Traverse the adjacent nodes of u. Remember, for the graph,,
+        the pair is assumed to be (node, weight). Can be done as
+        you like of course.
+        */
+        for(i = 0; i < G[u].size(); i++) {
+            v = G[u][i].first; // node
+            w = G[u][i].second; // edge weight
+
+            /*
+            Relax only if it improves the already computed shortest
+            path weight.
+            */
+            if(d[v] > d[u] + w) {
+                d[v] = d[u] + w;
+                Q.push(pii(d[v], v));
+            }
         }
     }
 }
