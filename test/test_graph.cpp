@@ -26,31 +26,32 @@ int main(int argc, char** argv)
     std::cout << graph << std::endl << std::endl;
 
     std::cout << "Adding edge from node 1 to node 2" << std::endl;
-    graph.addEdge(n1ptr,n2ptr);
-    std::cout << graph << std::endl << std::endl;
-
-    std::cout << "Adding edge from node 1 to node 3" << std::endl;
-    graph.addEdge(n1ptr,n3ptr);
-    std::cout << graph << std::endl << std::endl;
-
-    std::cout << "Adding edge from node 1 to node 4" << std::endl;
-    graph.addEdge(n1ptr,n4ptr);
+    graph_map::Edge* e = graph.addEdge(n1ptr,n2ptr);
+    e->w = 1.0;
     std::cout << graph << std::endl << std::endl;
 
     std::cout << "Adding edge from node 2 to node 3" << std::endl;
-    graph.addEdge(n2ptr,n3ptr);
+    e = graph.addEdge(n2ptr,n3ptr);
+    e->w = 1.0;
     std::cout << graph << std::endl << std::endl;
 
-    std::cout << "Adding edge from node 2 to node 4" << std::endl;
-    graph.addEdge(n1ptr,n3ptr);
+    std::cout << "Adding edge from node 3 to node 4" << std::endl;
+    e = graph.addEdge(n3ptr,n4ptr);
+    e->w = 1.0;
     std::cout << graph << std::endl << std::endl;
 
-    std::cout << "Adding edge from node 2 to node 1" << std::endl;
-    graph.addEdge(n2ptr,n1ptr);
+    std::cout << "Adding edge from node 1 to node 3" << std::endl;
+    e = graph.addEdge(n1ptr,n3ptr);
+    e->w = 1.0;
     std::cout << graph << std::endl << std::endl;
 
-//    std::cout << "Adding edge from node 1 to node 2 again" << std::endl;
-//    graph.addEdge(n1ptr,n2ptr);
-//    std::cout << graph << std::endl;
+//    std::cout << "Adding edge from node 1 to node 4" << std::endl;
+//    e = graph.addEdge(n1ptr,n4ptr);
+//    e->w = 1;
+//    std::cout << graph << std::endl << std::endl;
+
+    graph.Dijkstra(n1ptr,n4ptr);
+
+
 
 }

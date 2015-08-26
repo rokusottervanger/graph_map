@@ -2,6 +2,7 @@
 #include <iostream>
 //#include <vector>
 #include <queue>
+#include <limits>
 
 #include "graph_map/graph.h"
 
@@ -45,125 +46,93 @@ Edge* Graph::addEdge(Node* n1, Node* n2)
 
 // Todo: Maybe calculate shortest path tree when adding/updating edges/nodes with robot as root.
 
-//struct Neighbour{
-//    Node* target;
-//    double weight;
-//    Neighbour(Node* target_arg, double weight_arg):
-//        target(target_arg), weight(weight_arg) {}
-//    operator< (Neighbour n) { weight < n.weight; }
-//};
-
-
-
-//std::queue<Node*> Graph::Dijkstra(const Node &n1, const Node &n2)
-//{
-//    std::queue<double> d;
-
-//    // Create vertex set Q
-//    std::queue<Node*> Q;
-
-//    for ( std::list<Node>::iterator it = nodes_.begin(); it != nodes_.end(); it++ )
-//    {
-////        double a = std::numeric_limits<double>::infinity();
-//        Q.push(&(*it)); // Push pointer to node into queue
-//    }
-
-//    while ( !Q.empty() ) // Only visit nodes once
-//    {
-//        Node* u = Q.front(); // Vertex in Q with the minimum distance to the source node. Todo: sort queue
-//        Q.pop();
-
-//        // Loop through current node's neighbours
-//        for ( std::vector<Edge*>::iterator e_it = u->edges.begin(); e_it != u->edges.end(); e_it++ )
-//        {
-//            if( (*e_it)->n1_->id == u->id )
-//                const Node* v = (*e_it)->n2_;
-//            else if ( (*e_it)->n2_->id == u->id )
-//                const Node* v = (*e_it)->n1_;
-//            else
-//                std::cout << "Check yourself! This should never happen." << std::endl;
-//        }
-//    }
-//}
-
 typedef std::pair< int, Node* > Neighbor;
-
-/*
-Set MAX according to the number of nodes in the graph. Remember,
-nodes are numbered from 1 to N. Set INF according to what is the
-maximum possible shortest path length going to be in the graph.
-This value should match with the default values for d[] array.
-*/
-const int MAX = 1024;
-const int INF = 0x3f3f3f3f;
-
 const double inf = std::numeric_limits<double>::infinity();
 
-/*
-pair object for graph is assumed to be (node, weight). d[] array
-holds the shortest path from the source. It contains INF if not
-reachable from the source.
-*/
-std::vector< Neighbor > G;
-std::vector< Node* > d;
+std::vector<Node*> Graph::Dijkstra(Node* source, Node* target)
+{
+    Node* u;
+    Node* v;
+    double c, w;
+    std::vector<Node*> path;
 
-/*
-The dijkstra routine. You can send a target node too along with
-the source node.
-*/
-void dijkstra(int source, int target) {
-    int u, v, i, c, w;
+    std::priority_queue<Neighbor, std::vector<Neighbor>, std::greater<Neighbor> > Q;
 
-    priority_queue< Neighbor, vector< Neighbor >, greater< Neighbor > > Q;
-
-    /*
-    Reset the distance array and set INF as initial value. The
-    source node will have weight 0. We push (0, source) in the
-    priority queue as well that denotes source node has 0 weight.
-    */
-    memset(d, 0x3f, sizeof d);
-    Q.push(pii(0, source));
-    d[source] = 0;
-
-    /*
-    As long as queue is not empty, check each adjacent node of u
-    */
-    while(!Q.empty()) {
-        u = Q.top().second; // node
-        c = Q.top().first; // node cost so far
-        Q.pop(); // remove the top item.
-
-        /*
-        We have discarded the visit array as we do not need it.
-        If d[u] has already a better value than the currently
-        popped node from queue, discard the operation on this node.
-        */
-        if(d[u] < c) continue;
-
-        /*
-        In case you have a target node, check if u == target node.
-        If yes you can early return d[u] at this point.
-        */
-
-        /*
-        Traverse the adjacent nodes of u. Remember, for the graph,,
-        the pair is assumed to be (node, weight). Can be done as
-        you like of course.
-        */
-        for(i = 0; i < G[u].size(); i++) {
-            v = G[u][i].first; // node
-            w = G[u][i].second; // edge weight
-
-            /*
-            Relax only if it improves the already computed shortest
-            path weight.
-            */
-            if(d[v] > d[u] + w) {
-                d[v] = d[u] + w;
-                Q.push(pii(d[v], v));
-            }
+    // Initialize cost map with infinity and queue of unvisited nodes
+    std::map<Node*, double> d;
+    for(std::list<Node>::iterator it = nodes_.begin(); it != nodes_.end(); it++)
+    {
+        Node* n_ptr = &(*it);
+        if (n_ptr != source)
+        {
+            d[n_ptr] = inf;
         }
     }
+    Q.push(Neighbor(0,source));
+    d[source] = 0;
+
+    // Initialize path with first node (not really necessary, because it is obvious?)
+//    path.push_back(source);
+
+    while(!Q.empty())
+    {
+        // Take the cheapest node from the queue
+        u = Q.top().second; // node
+        c = Q.top().first;  // cost so far
+        Q.pop();
+
+///        if(d[u] < c) continue;
+
+        if ( u == target ) return path;
+
+        // Run through nodes connected to cheapest node so far
+        for ( std::vector<Edge*>::iterator e_it = u->edges.begin(); e_it != u->edges.end(); e_it++ )
+        {
+            // Retrieve the right nodes from the edges.
+            Edge* e_ptr = *e_it;
+            if( e_ptr->n1_->id == u->id )
+                v = e_ptr->n2_;
+            else if ( e_ptr->n2_->id == u->id )
+                v = e_ptr->n1_;
+            else
+                std::cout << "Check yourself before you wreck yourself. This should never happen!" << std::endl;
+
+            // If this node was already visited, continue
+            if ( d.find(v) == d.end() )
+                continue;
+
+            // Get weight from edge
+            w = e_ptr->w;
+
+            // If path to second node is cheaper than before, update cost to that node and add it to priority queue of potential nodes to visit
+            if (d[v] > d[u] + w)
+            {
+                d[v] = d[u] + w;
+                Q.push(Neighbor(d[v], v));
+
+                // Add visited node to path
+                path.push_back(u);
+            }
+        }
+
+        std::cout << "d = " << std::endl;
+        for (std::map<Node*, double>::const_iterator it = d.begin(); it != d.end(); it++)
+        {
+            std::cout << it->first->id << ", " << it->second << ";" << std::endl;
+        }
+        std::cout << std::endl;
+
+        std::cout << "path = " << std::endl;
+        for (std::vector<Node*>::const_iterator it = path.begin(); it != path.end(); it++)
+        {
+            Node* n = *it;
+            std::cout << n->id << std::endl;
+        }
+
+        // After visiting node, remove it from map of nodes with weights.
+        d.erase(u);
+    }
+    return path;
 }
 
 // 1 function Dijkstra(Graph, source):

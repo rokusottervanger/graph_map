@@ -28,14 +28,15 @@ public:
     Edge(){}
     Edge(Node* n1,Node* n2) { n1_ = n1; n2_ = n2;}
     inline bool operator== (Edge e) { return e.n1_ == n1_ && e.n2_ == n2_ || e.n1_ == n2_ && e.n2_ == n1_; }
+    double w; // Edge weight
 
 protected:
     // TODO: make incompleteness of pose relationship possible
     geo::Transform2 pose; // Pose transform from node 1 to node 2
-    double w; // Edge weight
 
-    const Node* n1_;
-    const Node* n2_;
+
+    Node* n1_;
+    Node* n2_;
 };
 
 // -----------------------------------------------------------------------------------------------
@@ -65,9 +66,9 @@ public:
     Node* addNode(const Node &node);
     Edge* addEdge(Node* n1, Node* n2);
 
-    std::queue<Node*> Dijkstra(const Node &n1, const Node &n2);
+    std::vector<Node*> Dijkstra(Node *n1, Node *n2);
 
-private:
+protected:
     std::list<Node> nodes_;
     std::list<Edge> edges_;
 
