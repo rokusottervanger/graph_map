@@ -45,7 +45,4 @@ int main(int argc, char** argv)
         path.pop_back();
         std::cout << n->id << std::endl;
     }
-
-
-
 }

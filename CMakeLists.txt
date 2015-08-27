@@ -107,6 +107,11 @@ target_link_libraries(test_graph
   ${catkin_LIBRARIES}
 )
 
+add_executable(test_localization test/test_localization.cpp src/graph.cpp ${HEADER_FILES})
+target_link_libraries(test_localization
+  ${catkin_LIBRARIES}
+)
+
 #############
 ## Testing ##
 #############

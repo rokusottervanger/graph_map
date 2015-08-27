@@ -9,14 +9,14 @@
 namespace graph_map
 {
 
-//struct IncompleteTransform
+//struct UncertainTransform
 //{
 //    // Definition of incomplete transform
 //}
 
 // -----------------------------------------------------------------------------------------------
 
-struct Node; // Forward declare Node for use in Edge
+struct Node;
 
 // -----------------------------------------------------------------------------------------------
 
