@@ -6,51 +6,45 @@ int main(int argc, char** argv)
 {
     graph_map::Graph graph;
 
-    graph_map::Node node1, node2, node3, node4;
+    graph_map::Node node1, node2, node3, node4, node5, node6;
 
     node1.id = "node1";
     node2.id = "node2";
     node3.id = "node3";
     node4.id = "node4";
+    node5.id = "node5";
+    node6.id = "node6";
 
     std::cout << "Adding nodes..." << std::endl;
     graph_map::Node* n1ptr = graph.addNode(node1);
-    std::cout << "1" << std::endl;
     graph_map::Node* n2ptr = graph.addNode(node2);
-    std::cout << "2" << std::endl;
     graph_map::Node* n3ptr = graph.addNode(node3);
-    std::cout << "3" << std::endl;
     graph_map::Node* n4ptr = graph.addNode(node4);
-    std::cout << "4" << std::endl;
+    graph_map::Node* n5ptr = graph.addNode(node5);
+    graph_map::Node* n6ptr = graph.addNode(node6);
+    std::cout << "Nodes added!" << std::endl;
+
+    std::cout << "Adding edges..." << std::endl;
+    graph.addEdge(n1ptr, n2ptr, 1.0);
+    graph.addEdge(n1ptr, n4ptr, 2.0);
+    graph.addEdge(n2ptr, n3ptr, 1.0);
+    graph.addEdge(n3ptr, n6ptr, 10.0);
+    graph.addEdge(n4ptr, n5ptr, 3.0);
+    graph.addEdge(n5ptr, n6ptr, 3.0);
+    std::cout << "Edges added!" << std::endl << std::endl;
 
     std::cout << graph << std::endl << std::endl;
 
-    std::cout << "Adding edge from node 1 to node 2" << std::endl;
-    graph_map::Edge* e = graph.addEdge(n1ptr,n2ptr);
-    e->w = 1.0;
-    std::cout << graph << std::endl << std::endl;
+    std::cout << "Performing Dijkstra with start node 1 and end node 6" << std::endl;
+    graph_map::Path path = graph.Dijkstra(n1ptr,n6ptr);
 
-    std::cout << "Adding edge from node 2 to node 3" << std::endl;
-    e = graph.addEdge(n2ptr,n3ptr);
-    e->w = 1.0;
-    std::cout << graph << std::endl << std::endl;
-
-    std::cout << "Adding edge from node 3 to node 4" << std::endl;
-    e = graph.addEdge(n3ptr,n4ptr);
-    e->w = 1.0;
-    std::cout << graph << std::endl << std::endl;
-
-    std::cout << "Adding edge from node 1 to node 3" << std::endl;
-    e = graph.addEdge(n1ptr,n3ptr);
-    e->w = 1.0;
-    std::cout << graph << std::endl << std::endl;
-
-//    std::cout << "Adding edge from node 1 to node 4" << std::endl;
-//    e = graph.addEdge(n1ptr,n4ptr);
-//    e->w = 1;
-//    std::cout << graph << std::endl << std::endl;
-
-    graph.Dijkstra(n1ptr,n4ptr);
+    std::cout << "path = " << std::endl;
+    while(!path.empty())
+    {
+        graph_map::Node* n = path.back();
+        path.pop_back();
+        std::cout << n->id << std::endl;
+    }
 
 
 

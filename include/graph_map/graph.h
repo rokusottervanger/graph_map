@@ -26,9 +26,9 @@ struct Edge
     friend std::ostream& operator<<(std::ostream& os, const Node& n);
 public:
     Edge(){}
-    Edge(Node* n1,Node* n2) { n1_ = n1; n2_ = n2;}
+    Edge(Node* n1,Node* n2, double w) { n1_ = n1; n2_ = n2; w_ = w; }
     inline bool operator== (Edge e) { return e.n1_ == n1_ && e.n2_ == n2_ || e.n1_ == n2_ && e.n2_ == n1_; }
-    double w; // Edge weight
+    double w_; // Edge weight
 
 protected:
     // TODO: make incompleteness of pose relationship possible
@@ -56,6 +56,10 @@ public:
 
 // -----------------------------------------------------------------------------------------------
 
+typedef std::vector<graph_map::Node*> Path;
+
+// -----------------------------------------------------------------------------------------------
+
 class Graph
 {
     friend std::ostream& operator<< (std::ostream& os, const Graph& g);
@@ -64,9 +68,9 @@ public:
     ~Graph(){}
 
     Node* addNode(const Node &node);
-    Edge* addEdge(Node* n1, Node* n2);
+    Edge* addEdge(Node* n1, Node* n2, double w);
 
-    std::vector<Node*> Dijkstra(Node *n1, Node *n2);
+    Path Dijkstra(Node *n1, Node *n2);
 
 protected:
     std::list<Node> nodes_;
