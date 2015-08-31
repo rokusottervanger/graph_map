@@ -6,6 +6,7 @@ project(graph_map)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   geolib2
+  tue_config
 )
 
 ## System dependencies are found with CMake's conventions
@@ -96,10 +97,10 @@ include_directories(
 file(GLOB_RECURSE HEADER_FILES include/*.h)
 
 
-#add_library(graph src/graph.cpp ${HEADER_FILES})
-#target_link_libraries(graph
-#  ${catkin_LIBRARIES}
-#)
+add_library(World test/World.cpp ${HEADER_FILES})
+target_link_libraries(World
+  ${catkin_LIBRARIES}
+)
 
 ## Declare a cpp executable
 add_executable(test_graph test/test_graph.cpp src/graph.cpp ${HEADER_FILES})
@@ -107,7 +108,7 @@ target_link_libraries(test_graph
   ${catkin_LIBRARIES}
 )
 
-add_executable(test_localization test/test_localization.cpp src/graph.cpp ${HEADER_FILES})
+add_executable(test_localization test/test_localization.cpp src/graph.cpp test/World.cpp ${HEADER_FILES})
 target_link_libraries(test_localization
   ${catkin_LIBRARIES}
 )
