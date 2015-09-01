@@ -1,6 +1,6 @@
 //#include <stdio.h>
 #include <iostream>
-#include "graph_map/graph.h"
+#include "graph_map/Graph.h"
 
 int main(int argc, char** argv)
 {

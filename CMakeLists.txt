@@ -7,6 +7,7 @@ project(graph_map)
 find_package(catkin REQUIRED COMPONENTS
   geolib2
   tue_config
+  blackboard
 )
 
 ## System dependencies are found with CMake's conventions
@@ -80,7 +81,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES graph_map
+  LIBRARIES graph_map
 #  CATKIN_DEPENDS
 #  DEPENDS system_lib
 )
@@ -97,21 +98,21 @@ include_directories(
 file(GLOB_RECURSE HEADER_FILES include/*.h)
 
 
-add_library(World test/World.cpp ${HEADER_FILES})
-target_link_libraries(World
+add_library(graph_map src/Graph.cpp src/Measurement.cpp ${HEADER_FILES})
+target_link_libraries(graph_map
   ${catkin_LIBRARIES}
 )
 
 ## Declare a cpp executable
-add_executable(test_graph test/test_graph.cpp src/graph.cpp ${HEADER_FILES})
+add_executable(test_graph test/test_graph.cpp src/Graph.cpp ${HEADER_FILES})
 target_link_libraries(test_graph
   ${catkin_LIBRARIES}
 )
 
-add_executable(test_localization test/test_localization.cpp src/graph.cpp test/World.cpp ${HEADER_FILES})
-target_link_libraries(test_localization
-  ${catkin_LIBRARIES}
-)
+#add_executable(test_localization test/test_localization.cpp src/graph.cpp test/World.cpp ${HEADER_FILES})
+#target_link_libraries(test_localization
+#  ${catkin_LIBRARIES}
+#)
 
 #############
 ## Testing ##
