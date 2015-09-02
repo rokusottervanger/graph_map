@@ -33,16 +33,9 @@ int main(int argc, char** argv)
     graph.addEdge(n5ptr, n6ptr, 3.0);
     std::cout << "Edges added!" << std::endl << std::endl;
 
-    std::cout << graph << std::endl << std::endl;
-
     std::cout << "Performing Dijkstra with start node 1 and end node 6" << std::endl;
     graph_map::Path path = graph.Dijkstra(n1ptr,n6ptr);
 
-    std::cout << "path = " << std::endl;
-    while(!path.empty())
-    {
-        graph_map::Node* n = path.back();
-        path.pop_back();
-        std::cout << n->id << std::endl;
-    }
+    std::cout << path.toString() << std::endl;
+    std::cout << "again:\n" << path.toString() << std::endl;
 }

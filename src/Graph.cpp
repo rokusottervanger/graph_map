@@ -53,36 +53,6 @@ Edge* Graph::addEdge(Node* n1, Node* n2, geo::Pose3D &pose)
 
 // -----------------------------------------------------------------------------------------------
 
-Edge* Graph::addEdge(Edge &edge)
-{
-    // Calculate weight
-    edge.w = edge.pose.t.length2(); // todo: better weight calculation
-
-    std::list<Edge>::iterator edge_it = std::find(edges_.begin(),edges_.end(),edge);
-
-    // Check if edge already exists (two edges are the same if they define relations between the same two nodes)
-    // Todo: Decide whether or not an edge from 1 to the 2 is the same as from 2 to 1 (but inverse, of course)
-    if ( edge_it == edges_.end()) // Edge does not yet exist
-    {
-        // Add edge to edges vector
-        edges_.push_back(edge);
-
-        // Add edge to edges vectors of respective nodes. Todo: invert edge before adding to second node?
-        edge.n1->edges.push_back(&edges_.back());
-        edge.n2->edges.push_back(&edges_.back());
-
-        return &edges_.back();
-    }
-    else // Edge already exists
-    {
-        // todo: more advanced updating of edges?
-        *edge_it = edge;
-        return &(*edge_it);
-    }
-}
-
-// -----------------------------------------------------------------------------------------------
-
 Edge* Graph::addEdge(Node* n1, Node* n2, double weight)
 {
     // Create edge object
@@ -113,7 +83,7 @@ Edge* Graph::addEdge(Node* n1, Node* n2, double weight)
 
 // -----------------------------------------------------------------------------------------------
 
-void Graph::configure(tue::Configuration &config)
+bool Graph::configure(tue::Configuration &config)
 {
     std::map<std::string,Node*> nodes;
 
@@ -130,39 +100,55 @@ void Graph::configure(tue::Configuration &config)
                 continue;
 
             std::string id;
-            if (!config.value("node_id", id))
-                continue;
+            if (!config.value("id", id))
+            {
+                std::cout << "\033[31m" << "[GRAPH] ERROR! Node config has no id" << "\033[0m" << std::endl;
+                return false;
+            }
+            else
+            {
+                node.id = id;
+                nodes[id] = addNode(node);
 
-            node.id = id;
-            nodes[id] = addNode(node);
-
-            std::cout << "Added object: id = '" << id << "'" << std::endl;
+                std::cout << "[GRAPH] Added object: id = '" << id << "'" << std::endl;
+            }
         }
-
+        std::cout << "1" << std::endl;
         config.endArray();
     }
 
+    std::cout << "2" << std::endl;
+
     if (config.readArray("relations"))
     {
+        std::cout << "Found array 'relations'" << std::endl;
         while(config.nextArrayItem())
         {
-            Edge edge;
+            std::cout << "Next array item" << std::endl;
 
             std::string id1, id2;
             if (!config.value("n1", id1) || !config.value("n2", id2))
+            {
+                std::cout << "Edge config is missing one or two nodes to connect" << std::endl;
                 continue;
+            }
+
+            std::cout << "Checking if node ids exist" << std::endl;
 
             std::map<std::string,Node*>::iterator n1_it = nodes.find(id1);
             std::map<std::string,Node*>::iterator n2_it = nodes.find(id2);
 
             if (n1_it != nodes.end())
             {
+                std::cout << "Nodes exist, so make edge" << std::endl;
                 Node* n1 = n1_it->second;
                 Node* n2 = n2_it->second;
 
+                std::cout << "Reading poses" << std::endl;
                 geo::Pose3D pose = geo::Pose3D::identity();
                 if (config.readGroup("pose", tue::REQUIRED))
                 {
+                    std::cout << "Reading pose group" << std::endl;
                     config.value("x", pose.t.x);
                     config.value("y", pose.t.y);
                     config.value("z", pose.t.z);
@@ -174,25 +160,37 @@ void Graph::configure(tue::Configuration &config)
                     pose.R.setRPY(roll, pitch, yaw);
 
                     config.endGroup();
+                    std::cout << "Read pose info" << std::endl;
                 }
                 else
+                {
+                    std::cout << "Could not find pose group" << std::endl;
                     continue;
+                }
 
-                edge.pose = pose;
+                std::cout << "Adding edge" << std::endl;
 
-                addEdge(edge);
+                addEdge(n1,n2,pose);
+
+                std::cout << "Added edge" << std::endl;
+            }
+            else
+            {
+                std::cout << "\033[31m" << "[GRAPH] WARNING! Could not find nodes corresponding to edge" << "\033[0m" << std::endl;
             }
 
-            std::cout << "Added edge from: '" << id1 << "' to '" << id2 << "'" << std::endl;
+            std::cout << "[GRAPH] Added edge from: '" << id1 << "' to '" << id2 << "'" << std::endl;
         }
+        std::cout << "End of array 'relations'" << std::endl;
     }
+    return true;
 }
 
 // -----------------------------------------------------------------------------------------------
 
 void Graph::update(Measurements measurements)
 {
-    std::cout << "Updating graph" << std::endl;
+    std::cout << "[GRAPH] Updating graph" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
@@ -200,17 +198,18 @@ void Graph::update(Measurements measurements)
 Node* Graph::findNodeByID(std::string id)
 {
     std::list<Node>::iterator n_it = std::find_if(nodes_.begin(),nodes_.end(),boost::bind(&Node::id, _1) == id);
+    return &(*n_it);
 }
 
 // -----------------------------------------------------------------------------------------------
 
 // Todo: Maybe calculate shortest path tree when adding/updating edges/nodes with robot as root.
 
-typedef std::pair< int, Node* > Neighbor;
-const double inf = std::numeric_limits<double>::infinity();
-
 Path Graph::Dijkstra(Node* source, Node* target)
 {
+    typedef std::pair< int, Node* > Neighbor;
+    const double inf = std::numeric_limits<double>::infinity();
+
     Node* u;
     Node* v;
     double c, w;
@@ -247,11 +246,11 @@ Path Graph::Dijkstra(Node* source, Node* target)
         if ( u == target )
         {
             Node* n = u;
-            path.push_back(n);
+            path.push(n);
             while ( n != source )
             {
                 n = prev[n];
-                path.push_back(n);
+                path.push(n);
             }
             return path;
         }
@@ -267,7 +266,7 @@ Path Graph::Dijkstra(Node* source, Node* target)
                 v = e_ptr->n1;
             else
             {
-                std::cout << "\033[31m" << "Warning! Edge does not connect two nodes." << std::endl;
+                std::cout << "\033[31m" << "[GRAPH] Warning! Edge does not connect two nodes." << "\033[0m" << std::endl;
                 continue;
             }
 
@@ -294,60 +293,6 @@ Path Graph::Dijkstra(Node* source, Node* target)
         // After visiting node, remove it from map of nodes with weights.
         d.erase(u);
     }
-}
-
-/// ------------------------------------------------------------------------------------------------
-/// Output streams ---------------------------------------------------------------------------------
-
-// Output stream conversion for node
-std::ostream& operator<<(std::ostream& os, const graph_map::Node& n)
-{
-    os << "id: " << n.id;
-    if( n.edges.size() > 0 )
-    {
-        os << std::endl << "edges: ";
-        for( std::vector<graph_map::Edge*>::const_iterator it = n.edges.begin(); it != n.edges.end(); it++ ){
-            graph_map::Edge* e_ptr = *it;
-            os << std::endl << e_ptr->n1->id << " --> " << e_ptr->n2->id << " (" << e_ptr->w << ")";
-        }
-    }
-    else
-        os << std::endl << "no registered edges";
-    return os;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-// Output stream conversion for graph
-std::ostream& operator<<(std::ostream& os, const graph_map::Graph& g)
-{
-    if( g.nodes_.size() == 0)
-        os << "Graph does not contain any nodes";
-    else
-    {
-        os << "Graph contains these nodes:";
-        for( std::list<graph_map::Node>::const_iterator it = g.nodes_.begin(); it != g.nodes_.end(); it++ ){
-            os << std::endl << *it;
-        }
-    }
-    return os;
-}
-
-// -----------------------------------------------------------------------------------------------
-
-// Output stream conversion for path
-std::ostream& operator<<(std::ostream& os, const graph_map::Path& p)
-{
-    if( p.size() == 0)
-        os << "Path does not contain any nodes";
-    else
-    {
-        os << "Path contains these nodes:";
-        for( std::vector<graph_map::Node*>::const_iterator it = p.begin(); it != p.end(); it++ ){
-            os << std::endl << (*it)->id;
-        }
-    }
-    return os;
 }
 
 }
