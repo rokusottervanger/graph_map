@@ -96,7 +96,7 @@ bool Graph::configure(tue::Configuration &config)
             // Check for the 'enabled' field. If it exists and the value is 0, omit this object. This allows
             // the user to easily enable and disable certain objects with one single flag.
             int enabled;
-            if (config.value("graph_enabled", enabled, tue::OPTIONAL) && !enabled)
+            if (config.value("enabled", enabled, tue::OPTIONAL) && !enabled)
                 continue;
 
             std::string id;
