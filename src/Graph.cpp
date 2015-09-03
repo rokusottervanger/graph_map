@@ -12,9 +12,24 @@ namespace graph_map
 
 // -----------------------------------------------------------------------------------------------
 
+Node* Graph::addNode(std::string id)
+{
+    Node node(id);
+    nodes_.push_back(node);
+
+    std::cout << "[GRAPH] Added node with id: '" << id << "'" << std::endl;
+
+    return &nodes_.back();
+}
+
+// -----------------------------------------------------------------------------------------------
+
 Node* Graph::addNode(const Node &node)
 {
     nodes_.push_back(node);
+
+    std::cout << "[GRAPH] Added node with id: '" << node.id << "'" << std::endl;
+
     return &nodes_.back();
 }
 
@@ -40,6 +55,8 @@ Edge* Graph::addEdge(Node* n1, Node* n2, geo::Pose3D &pose)
         // Add edge to edges vectors of respective nodes. Todo: invert edge before adding to second node?
         n1->edges.push_back(&edges_.back());
         n2->edges.push_back(&edges_.back());
+
+        std::cout << "[GRAPH] Added edge from '" << n1->id << "' to '" << n2->id << "'" << std::endl;
 
         return &edges_.back();
     }
@@ -70,6 +87,8 @@ Edge* Graph::addEdge(Node* n1, Node* n2, double weight)
         // Add edge to edges vectors of respective nodes. Todo: invert edge before adding to second node?
         n1->edges.push_back(&edges_.back());
         n2->edges.push_back(&edges_.back());
+
+        std::cout << "[GRAPH] Added edge from '" << n1->id << "' to '" << n2->id << "'" << std::endl;
 
         return &edges_.back();
     }
@@ -103,52 +122,37 @@ bool Graph::configure(tue::Configuration &config)
             if (!config.value("id", id))
             {
                 std::cout << "\033[31m" << "[GRAPH] ERROR! Node config has no id" << "\033[0m" << std::endl;
-                return false;
+                continue;
             }
             else
             {
                 node.id = id;
                 nodes[id] = addNode(node);
-
-                std::cout << "[GRAPH] Added object: id = '" << id << "'" << std::endl;
             }
         }
         std::cout << "1" << std::endl;
         config.endArray();
     }
 
-    std::cout << "2" << std::endl;
-
     if (config.readArray("relations"))
     {
-        std::cout << "Found array 'relations'" << std::endl;
         while(config.nextArrayItem())
         {
-            std::cout << "Next array item" << std::endl;
-
             std::string id1, id2;
             if (!config.value("n1", id1) || !config.value("n2", id2))
-            {
-                std::cout << "Edge config is missing one or two nodes to connect" << std::endl;
                 continue;
-            }
-
-            std::cout << "Checking if node ids exist" << std::endl;
 
             std::map<std::string,Node*>::iterator n1_it = nodes.find(id1);
             std::map<std::string,Node*>::iterator n2_it = nodes.find(id2);
 
             if (n1_it != nodes.end())
             {
-                std::cout << "Nodes exist, so make edge" << std::endl;
                 Node* n1 = n1_it->second;
                 Node* n2 = n2_it->second;
 
-                std::cout << "Reading poses" << std::endl;
                 geo::Pose3D pose = geo::Pose3D::identity();
                 if (config.readGroup("pose", tue::REQUIRED))
                 {
-                    std::cout << "Reading pose group" << std::endl;
                     config.value("x", pose.t.x);
                     config.value("y", pose.t.y);
                     config.value("z", pose.t.z);
@@ -160,19 +164,13 @@ bool Graph::configure(tue::Configuration &config)
                     pose.R.setRPY(roll, pitch, yaw);
 
                     config.endGroup();
-                    std::cout << "Read pose info" << std::endl;
                 }
                 else
                 {
                     std::cout << "Could not find pose group" << std::endl;
                     continue;
                 }
-
-                std::cout << "Adding edge" << std::endl;
-
                 addEdge(n1,n2,pose);
-
-                std::cout << "Added edge" << std::endl;
             }
             else
             {
@@ -181,7 +179,6 @@ bool Graph::configure(tue::Configuration &config)
 
             std::cout << "[GRAPH] Added edge from: '" << id1 << "' to '" << id2 << "'" << std::endl;
         }
-        std::cout << "End of array 'relations'" << std::endl;
     }
     return true;
 }

@@ -2,13 +2,16 @@
 <package>
   <name>graph_map</name>
   <version>0.0.0</version>
-  <description>The graph_map package</description>
+  <description>The graph_map package offers a library for world modeling in a scene graph.</description>
   <maintainer email="rokusottervanger@gmail.com">Rokus Ottervanger</maintainer>
   <license>BSD</license>
 
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>geolib2</build_depend>
+  <build_depend>tue_config</build_depend>
+
   <run_depend>geolib2</run_depend>
+  <run_depend>tue_config</run_depend>
 
 </package>

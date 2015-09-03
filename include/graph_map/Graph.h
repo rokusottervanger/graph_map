@@ -20,6 +20,8 @@ public:
 
     ~Graph(){}
 
+    Node* addNode(std::string id);
+
     Node* addNode(const Node &node);
 
     Edge* addEdge(Node* n_1, Node* n_2, geo::Pose3D &pose);

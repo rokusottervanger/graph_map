@@ -11,6 +11,8 @@ struct Node
 {
     Node():id(""){}
 
+    Node(std::string id):id(id){}
+
     std::vector<Edge*> edges;
 
     std::string id;
