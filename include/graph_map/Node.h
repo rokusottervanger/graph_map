@@ -9,11 +9,11 @@ namespace graph_map
 
 struct Node
 {
-    Node():id(""){}
+    Node(){}
 
-    Node(std::string id):id(id){}
+    Node(const std::string& id):id(id){}
 
-    std::vector<Edge*> edges;
+    std::vector<int> edges;
 
     std::string id;
 };

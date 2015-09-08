@@ -12,99 +12,98 @@ namespace graph_map
 
 // -----------------------------------------------------------------------------------------------
 
-Node* Graph::addNode(std::string id)
+int Graph::addNode(const Node& node)
 {
-    Node node(id);
-    nodes_.push_back(node);
-
-    std::cout << "[GRAPH] Added node with id: '" << id << "'" << std::endl;
-
-    return &nodes_.back();
-}
-
-// -----------------------------------------------------------------------------------------------
-
-Node* Graph::addNode(const Node &node)
-{
-    nodes_.push_back(node);
+    int i;
+    if ( deleted_nodes_.empty() )
+    {
+        nodes_.push_back(node);
+        i = nodes_.size()-1;
+    }
+    else
+    {
+        int i = deleted_nodes_.back();
+        nodes_[i] = node;
+        deleted_nodes_.pop_back();
+    }
 
     std::cout << "[GRAPH] Added node with id: '" << node.id << "'" << std::endl;
 
-    return &nodes_.back();
+    return i;
 }
 
 // -----------------------------------------------------------------------------------------------
 
-Edge* Graph::addEdge(Node* n1, Node* n2, geo::Pose3D &pose)
+//int Graph::addEdge_(const Edge& edge)
+//{
+//    int i;
+//    if ( deleted_edges_.empty() )
+//    {
+//        edges_.push_back(edge);
+//        i = edges_.size()-1;
+//    }
+//    else
+//    {
+//        int i = deleted_edges_.back();
+//        edges_[i] = edge;
+//        deleted_edges_.pop_back();
+//    }
+
+//    std::cout << "[GRAPH] Added edge from: '" << nodes_[edge.n1].id << "'' to '" << nodes_[edge.n2].id << "'." << std::endl;
+
+//    return i;
+//}
+
+// -----------------------------------------------------------------------------------------------
+
+int Graph::addEdge(int n1, int n2, const geo::Pose3D &pose)
 {
     // Create edge object
     Edge edge(n1,n2,pose);
 
-    // Calculate weight
-    edge.w = edge.pose.t.length2(); // todo: better weight calculation
-
-    std::list<Edge>::iterator edge_it = std::find(edges_.begin(),edges_.end(),edge);
-
-    // Check if edge already exists (two edges are the same if they define relations between the same two nodes)
-    // Todo: Decide whether or not an edge from 1 to the 2 is the same as from 2 to 1 (but inverse, of course)
-    if ( edge_it == edges_.end()) // Edge does not yet exist
+    // Check if edge already exists (two edges are the same if they define a relation between the same two nodes)
+    // Somewhere in nodes[n1].edges is an index to an edge that contains n2 as index to the second node.
+    for (int i = 0; i != nodes_[n1].edges.size(); i++)
     {
-        // Add edge to edges vector
+        int j = nodes_[n1].edges[i];    // Index of the current edge in the graph object
+        Edge e = edges_[j];             // Copy of the current edge
+
+        if (e.n1 == n2 || e.n2 == n2)   // Check if current edge defines the same relation as the edge that is to be added
+        {
+            // todo: more advanced updating of edges?
+            edges_[j] = edge;
+            return j;
+        }
+    }
+
+    // Add edge to edges vector
+    int i;
+    if ( deleted_edges_.empty() )
+    {
         edges_.push_back(edge);
-
-        // Add edge to edges vectors of respective nodes. Todo: invert edge before adding to second node?
-        n1->edges.push_back(&edges_.back());
-        n2->edges.push_back(&edges_.back());
-
-        std::cout << "[GRAPH] Added edge from '" << n1->id << "' to '" << n2->id << "'" << std::endl;
-
-        return &edges_.back();
+        i = edges_.size()-1;
     }
-    else // Edge already exists
+    else
     {
-        // todo: more advanced updating of edges?
-        *edge_it = edge;
-        return &(*edge_it);
+        int i = deleted_edges_.back();
+        edges_[i] = edge;
+        deleted_edges_.pop_back();
     }
-}
 
-// -----------------------------------------------------------------------------------------------
+    // Add edge to edges vectors of respective nodes.
+    nodes_[n1].edges.push_back(i);
+    nodes_[n2].edges.push_back(i);
 
-Edge* Graph::addEdge(Node* n1, Node* n2, double weight)
-{
-    // Create edge object
-    Edge edge(n1,n2,weight);
+    std::cout << "[GRAPH] Added edge from: '" << nodes_[edge.n1].id << "'' to '" << nodes_[edge.n2].id << "'." << std::endl;
 
-    std::list<Edge>::iterator edge_it = std::find(edges_.begin(),edges_.end(),edge);
-
-    // Check if edge already exists (two edges are the same if they define relations between the same two nodes)
-    // Todo: Decide whether or not an edge from 1 to the 2 is the same as from 2 to 1 (but inverse, of course)
-    if ( edge_it == edges_.end()) // Edge does not yet exist
-    {
-        // Add edge to edges vector
-        edges_.push_back(edge);
-
-        // Add edge to edges vectors of respective nodes. Todo: invert edge before adding to second node?
-        n1->edges.push_back(&edges_.back());
-        n2->edges.push_back(&edges_.back());
-
-        std::cout << "[GRAPH] Added edge from '" << n1->id << "' to '" << n2->id << "'" << std::endl;
-
-        return &edges_.back();
-    }
-    else // Edge already exists
-    {
-        // todo: more advanced updating of edges?
-        *edge_it = edge;
-        return &(*edge_it);
-    }
+    return i;
 }
 
 // -----------------------------------------------------------------------------------------------
 
 bool Graph::configure(tue::Configuration &config)
 {
-    std::map<std::string,Node*> nodes;
+    std::map<std::string,int> nodes;
 
     if (config.readArray("objects"))
     {
@@ -142,13 +141,13 @@ bool Graph::configure(tue::Configuration &config)
             if (!config.value("n1", id1) || !config.value("n2", id2))
                 continue;
 
-            std::map<std::string,Node*>::iterator n1_it = nodes.find(id1);
-            std::map<std::string,Node*>::iterator n2_it = nodes.find(id2);
+            std::map<std::string,int>::iterator n1_it = nodes.find(id1);
+            std::map<std::string,int>::iterator n2_it = nodes.find(id2);
 
             if (n1_it != nodes.end())
             {
-                Node* n1 = n1_it->second;
-                Node* n2 = n2_it->second;
+                int n1 = n1_it->second;
+                int n2 = n2_it->second;
 
                 geo::Pose3D pose = geo::Pose3D::identity();
                 if (config.readGroup("pose", tue::REQUIRED))
@@ -185,24 +184,28 @@ bool Graph::configure(tue::Configuration &config)
 
 // -----------------------------------------------------------------------------------------------
 
-void Graph::update(Measurements measurements)
+void Graph::update(const Measurements& measurements)
 {
     std::cout << "[GRAPH] Updating graph" << std::endl;
 }
 
 // -----------------------------------------------------------------------------------------------
 
-Node* Graph::findNodeByID(std::string id)
+int Graph::findNodeByID(const std::string& id)
 {
-    std::list<Node>::iterator n_it = std::find_if(nodes_.begin(),nodes_.end(),boost::bind(&Node::id, _1) == id);
-    return &(*n_it);
+    for ( int i = 0; i <= nodes_.size(); i++ )
+    {
+        if ( nodes_[i].id == id)
+            return i;
+    }
+    return -1;
 }
 
 // -----------------------------------------------------------------------------------------------
 
 // Todo: Maybe calculate shortest path tree when adding/updating edges/nodes with robot as root.
 
-Path Graph::Dijkstra(Node* source, Node* target)
+Path Graph::Dijkstra(int source, int target)
 {
     typedef std::pair< int, Node* > Neighbor;
     const double inf = std::numeric_limits<double>::infinity();
@@ -216,7 +219,8 @@ Path Graph::Dijkstra(Node* source, Node* target)
     std::priority_queue<Neighbor, std::vector<Neighbor>, std::greater<Neighbor> > Q;
 
     // Initialize cost map with infinity and queue of unvisited nodes
-    std::map<Node*, double> d;
+//    std::map<Node*, double> d;
+    std::vector<std::pair< double, int > > d; // Double is the cost, int is index of node
     for(std::list<Node>::iterator it = nodes_.begin(); it != nodes_.end(); it++)
     {
         Node* n_ptr = &(*it);

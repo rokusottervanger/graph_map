@@ -20,26 +20,35 @@ public:
 
     ~Graph(){}
 
-    Node* addNode(std::string id);
+    int addNode(const Node&);
 
-    Node* addNode(const Node &node);
+    int addNode(const std::string& id) { return addNode(Node(id)); }
 
-    Edge* addEdge(Node* n_1, Node* n_2, geo::Pose3D &pose);
+    int addEdge(int, int, const geo::Pose3D&);
 
     // Only for testing, because an edge without pose but with weight makes no sense:
-    Edge* addEdge(Node* n1, Node* n2, double weight);
+    Edge* addEdge(int, int, double);
 
-    Path Dijkstra(Node *n1, Node *n2);
+    Path Dijkstra(int, int);
 
-    bool configure(tue::Configuration &config);
+    bool configure(tue::Configuration&);
 
-    Node* findNodeByID(std::string id);
+    int findNodeByID(const std::string&);
 
-    void update(Measurements);
+    void update(const Measurements&);
 
 protected:
-    std::list<Node> nodes_;
-    std::list<Edge> edges_;
+    std::vector<Node> nodes_;
+    std::vector<Edge> edges_;
+//    std::list<Node> nodes_; // TODO: Dit
+//    std::list<Edge> edges_;
+
+private:
+    int addNode_(const Node&);
+    int addEdge_(const Edge&);
+
+    std::vector<int> deleted_nodes_;
+    std::vector<int> deleted_edges_;
 
 };
 
