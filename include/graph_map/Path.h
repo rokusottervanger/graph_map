@@ -9,7 +9,7 @@
 namespace graph_map
 {
 
-class Path: public std::stack<graph_map::Node*>
+class Path: public std::stack<Node>
 {
 public:
     std::string toString();

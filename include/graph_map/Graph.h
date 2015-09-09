@@ -16,6 +16,7 @@ namespace graph_map
 class Graph
 {
 public:
+    friend class Path;
     Graph(){}
 
     ~Graph(){}
@@ -37,11 +38,11 @@ public:
 
     void update(const Measurements&);
 
+    Node getNode(const int& i) {return nodes_[i];}
+
 protected:
     std::vector<Node> nodes_;
     std::vector<Edge> edges_;
-//    std::list<Node> nodes_; // TODO: Dit
-//    std::list<Edge> edges_;
 
 private:
     int addNode_(const Node&);

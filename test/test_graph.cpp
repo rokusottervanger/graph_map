@@ -16,21 +16,30 @@ int main(int argc, char** argv)
     node6.id = "node6";
 
     std::cout << "Adding nodes..." << std::endl;
-    graph_map::Node* n1ptr = graph.addNode(node1);
-    graph_map::Node* n2ptr = graph.addNode(node2);
-    graph_map::Node* n3ptr = graph.addNode(node3);
-    graph_map::Node* n4ptr = graph.addNode(node4);
-    graph_map::Node* n5ptr = graph.addNode(node5);
-    graph_map::Node* n6ptr = graph.addNode(node6);
+    int n1ptr = graph.addNode(node1);
+    int n2ptr = graph.addNode(node2);
+    int n3ptr = graph.addNode(node3);
+    int n4ptr = graph.addNode(node4);
+    int n5ptr = graph.addNode(node5);
+    int n6ptr = graph.addNode(node6);
     std::cout << "Nodes added!" << std::endl;
 
+    geo::Pose3D pose1(1,0,0,0,0,0); // w = 1
+    geo::Pose3D pose2(1,1,0,0,0,0); // w = 1.4
+    geo::Pose3D pose3(2,1,0,0,0,0); // w = 2.24
+    geo::Pose3D pose4(2,2,0,0,0,0); // w = 2.8
+    geo::Pose3D pose5(4,3,0,0,0,0); // w = 5
+
     std::cout << "Adding edges..." << std::endl;
-    graph.addEdge(n1ptr, n2ptr, 1.0);
-    graph.addEdge(n1ptr, n4ptr, 2.0);
-    graph.addEdge(n2ptr, n3ptr, 1.0);
-    graph.addEdge(n3ptr, n6ptr, 10.0);
-    graph.addEdge(n4ptr, n5ptr, 3.0);
-    graph.addEdge(n5ptr, n6ptr, 3.0);
+    graph.addEdge(n1ptr, n2ptr, pose1);
+    graph.addEdge(n1ptr, n4ptr, pose1);
+    graph.addEdge(n2ptr, n3ptr, pose1);
+    graph.addEdge(n2ptr, n4ptr, pose1);
+    graph.addEdge(n2ptr, n5ptr, pose1);
+    graph.addEdge(n3ptr, n5ptr, pose1);
+    graph.addEdge(n3ptr, n6ptr, pose5);
+    graph.addEdge(n4ptr, n5ptr, pose1);
+    graph.addEdge(n5ptr, n6ptr, pose1);
     std::cout << "Edges added!" << std::endl << std::endl;
 
     std::cout << "Performing Dijkstra with start node 1 and end node 6" << std::endl;

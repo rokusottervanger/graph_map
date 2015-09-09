@@ -16,9 +16,9 @@ std::string Path::toString()
 
         while (!path.empty())
         {
-            graph_map::Node* n_ptr = path.top();
+            Node n = path.top();
             path.pop();
-            str.append("\n"+n_ptr->id);
+            str.append("\n"+n.id);
         }
     }
 

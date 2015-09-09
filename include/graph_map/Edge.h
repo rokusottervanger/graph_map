@@ -14,7 +14,7 @@ struct Node;
 
 struct Edge
 {
-    Edge(int n_1, int &n_2, geo::Pose3D p):n1(n_1), n2(n_2), pose(p) { w = pose.t.length2(); }
+    Edge(int n_1, int &n_2, geo::Pose3D p):n1(n_1), n2(n_2), pose(p) { w = p.t.length2(); }
 
     // Only for testing, because an edge without pose but with weight makes no sense:
     Edge(int &n_1,int &n_2, double &weight) {n1 = n_1; n2 = n_2; w = weight;}
