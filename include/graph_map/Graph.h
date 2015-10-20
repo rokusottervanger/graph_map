@@ -30,7 +30,7 @@ public:
     // Only for testing, because an edge without pose but with weight makes no sense:
     Edge* addEdge(int, int, double);
 
-    Path Dijkstra(int, int);
+    Path Dijkstra(const int, const int);
 
     bool configure(tue::Configuration&);
 

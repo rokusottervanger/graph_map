@@ -183,7 +183,7 @@ int Graph::findNodeByID(const std::string& id)
 
 // Todo: Maybe calculate shortest path tree when adding/updating edges/nodes with robot as root.
 
-Path Graph::Dijkstra(int source, int target)
+Path Graph::Dijkstra(const int source, const int target)
 {
     typedef std::pair< double, int > Neighbor; // First is the cost so far to this node, second is the node index
     const double inf = std::numeric_limits<double>::infinity();
